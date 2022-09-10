@@ -5,13 +5,13 @@
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
 #include "Components/Button.h"
-#include "StartLevelMenuUserWidget.generated.h"
+#include "PlayerMenuUserWidget.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class TESTLIGHT_API UStartLevelMenuUserWidget : public UUserWidget
+class TESTLIGHT_API UPlayerMenuUserWidget : public UUserWidget
 {
 	GENERATED_BODY()
 
@@ -19,16 +19,16 @@ public:
 	virtual bool Initialize() override;
 
 	UFUNCTION()
-	virtual void OnClickedStartGameButton();
+	virtual void OnClickedResumeGameButton();
 
 	UFUNCTION()
-	virtual void OnClickedExitGameButton();
+	virtual void OnClickedStartLevelMenuButton();
 	
 	UPROPERTY(BlueprintReadWrite, meta=(BindWidget))
-	UButton* StartGame;
+	UButton* ResumeGame;
 
 	UPROPERTY(BlueprintReadWrite, meta=(BindWidget))
-	UButton* ExitGame;
+	UButton* StartLevelMenu;
 
 	UPROPERTY(EditAnywhere)
 	FString StartLevelName = "";

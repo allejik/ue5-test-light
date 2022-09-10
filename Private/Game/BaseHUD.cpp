@@ -2,8 +2,9 @@
 
 
 #include "Game/BaseHUD.h"
+
+#include "Game/PlayerMenuUserWidget.h"
 #include "Game/PlayerUserWidget.h"
-#include "Game/StartLevelMenuUserWidget.h"
 #include "GameFramework/Character.h"
 
 void ABaseHUD::BeginPlay()
@@ -18,27 +19,57 @@ void ABaseHUD::BeginPlay()
 	}
 }
 
-void ABaseHUD::Tick(float DeltaSeconds)
+void ABaseHUD::Tick(const float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 
-	if (GetOwningPlayerController()->WasInputKeyJustPressed(EKeys::T))
+	APlayerController* OwningPlayerController = GetOwningPlayerController();
+
+	if (OwningPlayerController->WasInputKeyJustPressed(EKeys::T))
 	{
 		AddMenuUserWidget();
+	}
+
+	if (IsPlayerMenuUserOpen && !PlayerMenuUserWidget->IsVisible()) {
+		PlayerMenuUserWidget->RemoveFromParent();
+		PlayerMenuUserWidget = nullptr;
+		
+		// Enables/Disables cursor and click events
+		OwningPlayerController->bShowMouseCursor = false; 
+		OwningPlayerController->bEnableClickEvents = false; 
+		OwningPlayerController->bEnableMouseOverEvents = false;
+	
+		// Enables/Disables player movement
+		OwningPlayerController->SetIgnoreLookInput(false);
+		OwningPlayerController->SetIgnoreMoveInput(false);
+
+		IsPlayerMenuUserOpen = false;
 	}
 }
 
 void ABaseHUD::AddMenuUserWidget()
 {
-	if (StartLevelMenuUserWidget) {
-		StartLevelMenuUserWidget->RemoveFromParent();
-		StartLevelMenuUserWidget = nullptr;
-	}
+	if (PlayerMenuUserWidgetClass) {
+		APlayerController* OwningPlayerController = GetOwningPlayerController();
 
-	if (StartLevelMenuUserWidgetClass) {
-		StartLevelMenuUserWidget = CreateWidget<UStartLevelMenuUserWidget>(GetOwningPlayerController(), StartLevelMenuUserWidgetClass);
-		check(StartLevelMenuUserWidget != nullptr);
-		StartLevelMenuUserWidget->IsStartLevel = false;
-		StartLevelMenuUserWidget->AddToPlayerScreen();
+		// Enables/Disables cursor and click events
+		OwningPlayerController->bShowMouseCursor = true; 
+		OwningPlayerController->bEnableClickEvents = true; 
+		OwningPlayerController->bEnableMouseOverEvents = true;
+	
+		// Enables/Disables player movement
+		OwningPlayerController->SetIgnoreLookInput(true);
+		OwningPlayerController->SetIgnoreMoveInput(true);
+
+		// Sets cursor location in the center of the screen
+		FVector2D ScreenSize;
+		GEngine->GameViewport->GetViewportSize(ScreenSize);
+		OwningPlayerController->SetMouseLocation(ScreenSize.X / 2, ScreenSize.Y / 2);
+
+		PlayerMenuUserWidget = CreateWidget<UPlayerMenuUserWidget>(GetOwningPlayerController(), PlayerMenuUserWidgetClass);
+		check(PlayerMenuUserWidget != nullptr);
+
+		IsPlayerMenuUserOpen = true;
+		PlayerMenuUserWidget->AddToPlayerScreen();
 	}
 }

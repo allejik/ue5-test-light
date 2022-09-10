@@ -27,10 +27,13 @@ class TESTLIGHT_API ABaseHUD : public AHUD
 	UPROPERTY()
 	UPlayerUserWidget* PlayerUserWidget;
 
-	// Main Menu Widget
+	// Player Menu Widget
 	UPROPERTY(EditAnywhere)
-	TSubclassOf<class UStartLevelMenuUserWidget> StartLevelMenuUserWidgetClass;
+	TSubclassOf<class UPlayerMenuUserWidget> PlayerMenuUserWidgetClass;
 
 	UPROPERTY()
-	UStartLevelMenuUserWidget* StartLevelMenuUserWidget;
+	UPlayerMenuUserWidget* PlayerMenuUserWidget;
+
+	UPROPERTY()
+	bool IsPlayerMenuUserOpen = false;
 };

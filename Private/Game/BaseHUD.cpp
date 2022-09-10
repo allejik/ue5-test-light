@@ -3,6 +3,7 @@
 
 #include "Game/BaseHUD.h"
 
+#include "Blueprint/WidgetBlueprintLibrary.h"
 #include "Game/PlayerMenuUserWidget.h"
 #include "Game/PlayerUserWidget.h"
 #include "GameFramework/Character.h"
@@ -16,6 +17,9 @@ void ABaseHUD::BeginPlay()
 		check(PlayerUserWidget != nullptr);
 
 		PlayerUserWidget->AddToPlayerScreen();
+
+		// Sets focus to Game 
+		UWidgetBlueprintLibrary::SetInputMode_GameOnly(OwningPlayerController);
 	}
 }
 
@@ -44,6 +48,9 @@ void ABaseHUD::Tick(const float DeltaSeconds)
 		OwningPlayerController->SetIgnoreMoveInput(false);
 
 		IsPlayerMenuUserOpen = false;
+
+		// Sets focus to Game 
+		UWidgetBlueprintLibrary::SetInputMode_GameOnly(OwningPlayerController);
 	}
 }
 
@@ -71,5 +78,8 @@ void ABaseHUD::AddMenuUserWidget()
 
 		IsPlayerMenuUserOpen = true;
 		PlayerMenuUserWidget->AddToPlayerScreen();
+
+		// Sets focus to UI 
+		UWidgetBlueprintLibrary::SetInputMode_UIOnlyEx(OwningPlayerController, PlayerMenuUserWidget, EMouseLockMode::LockAlways);
 	}
 }

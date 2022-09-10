@@ -23,9 +23,6 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
-
-	void AddPlayerHUD();
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -72,13 +69,6 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Character Movement: Walking")
 	float SprintSpeedMultiplier;
-
-	// Player HUD
-	UPROPERTY(EditAnywhere)
-	TSubclassOf<class UPlayerHUD> PlayerHUDClass;
-
-	UPROPERTY()
-	UPlayerHUD* PlayerHUD;
 private:
 	UPROPERTY()
 	UCustomCharacterMovementComponent* CustomCharacterMovementComponent;

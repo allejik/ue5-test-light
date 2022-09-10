@@ -4,8 +4,6 @@
 #include "Game/CustomCharacterMovementComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Net/UnrealNetwork.h"
-#include "GameFramework/PlayerController.h"
-#include "Game/PlayerHUD.h"
 #include "Blueprint/UserWidget.h"
 
 // Sets default values
@@ -53,19 +51,6 @@ AFPSCharacter::AFPSCharacter(const FObjectInitializer& ObjectInitializer)
 void AFPSCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-
-	AddPlayerHUD();
-}
-
-void AFPSCharacter::EndPlay(const EEndPlayReason::Type EndPlayReason)
-{
-	// Removes player HUD
-	if (PlayerHUD) {
-		PlayerHUD->RemoveFromParent();
-		PlayerHUD = nullptr;
-	}
-
-	Super::EndPlay(EndPlayReason);
 }
 
 // Called every frame
@@ -97,16 +82,6 @@ void AFPSCharacter::PostInitializeComponents()
 	Super::PostInitializeComponents();
 
 	CustomCharacterMovementComponent = Cast<UCustomCharacterMovementComponent>(Super::GetMovementComponent());
-}
-
-void AFPSCharacter::AddPlayerHUD()
-{
-	if (PlayerHUDClass) {
-		PlayerHUD = CreateWidget<UPlayerHUD>(GetController<APlayerController>(), PlayerHUDClass);
-		check(PlayerHUD != nullptr);
-
-		PlayerHUD->AddToPlayerScreen();
-	}
 }
 
 void AFPSCharacter::MoveForward(const float Value)

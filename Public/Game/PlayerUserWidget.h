@@ -4,13 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
-#include "PlayerHUD.generated.h"
+#include "PlayerUserWidget.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class TESTLIGHT_API UPlayerHUD : public UUserWidget
+class TESTLIGHT_API UPlayerUserWidget : public UUserWidget
 {
 	GENERATED_BODY()
 

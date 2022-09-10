@@ -19,6 +19,9 @@ public:
 	virtual bool Initialize() override;
 
 	UFUNCTION()
+	virtual void SetMouseCursor(bool IsShowing);
+
+	UFUNCTION()
 	virtual void OnClickedStartGameButton();
 
 	UFUNCTION()
@@ -32,4 +35,6 @@ public:
 
 	UPROPERTY(EditAnywhere)
 	FString StartLevelName = "";
+
+	bool IsStartLevel = true;
 };

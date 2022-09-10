@@ -15,11 +15,22 @@ class TESTLIGHT_API ABaseHUD : public AHUD
 	GENERATED_BODY()
 
 	virtual void BeginPlay() override;
+	virtual void Tick(float DeltaSeconds) override;
 
-	// Player's HUD
+	UFUNCTION()
+	virtual void AddMenuUserWidget();
+
+	// HUD Widget
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<class UPlayerUserWidget> PlayerUserWidgetClass;
 
 	UPROPERTY()
 	UPlayerUserWidget* PlayerUserWidget;
+
+	// Main Menu Widget
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<class UStartLevelMenuUserWidget> StartLevelMenuUserWidgetClass;
+
+	UPROPERTY()
+	UStartLevelMenuUserWidget* StartLevelMenuUserWidget;
 };

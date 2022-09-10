@@ -10,7 +10,8 @@ bool UStartLevelMenuUserWidget::Initialize()
 	const bool bSuccess = Super::Initialize();
 	if (!bSuccess) return false;
 
-	StartGame->SetFocus();
+	SetMouseCursor(true);
+
 	StartGame->OnClicked.AddDynamic(this, &UStartLevelMenuUserWidget::UStartLevelMenuUserWidget::OnClickedStartGameButton);
 	ExitGame->OnClicked.AddDynamic(this, &UStartLevelMenuUserWidget::OnClickedExitGameButton);
 
@@ -19,12 +20,29 @@ bool UStartLevelMenuUserWidget::Initialize()
 
 void UStartLevelMenuUserWidget::OnClickedStartGameButton()
 {
+	SetMouseCursor(false);
+
+	if (!IsStartLevel) {
+		RemoveFromParent();
+		return;
+	}
+	
 	if (StartLevelName.IsEmpty()) {
 		UE_LOG(LogTemp, Error, TEXT("StartLevelName is not set for StartLevelMenu"));
 		return;
 	}
 
 	UGameplayStatics::OpenLevel(GetWorld(), FName(*StartLevelName));
+}
+
+void UStartLevelMenuUserWidget::SetMouseCursor(const bool IsShowing)
+{
+	APlayerController* OwningPlayer = GetOwningPlayer();
+	OwningPlayer->bShowMouseCursor = IsShowing; 
+	OwningPlayer->bEnableClickEvents = IsShowing; 
+	OwningPlayer->bEnableMouseOverEvents = IsShowing;
+	OwningPlayer->SetIgnoreLookInput(IsShowing);
+	OwningPlayer->SetIgnoreMoveInput(IsShowing);
 }
 
 void UStartLevelMenuUserWidget::OnClickedExitGameButton()

@@ -7,13 +7,8 @@
 
 void AStartLevelHUD::BeginPlay()
 {
-	APlayerController* OwningPlayerController = GetOwningPlayerController();
-	OwningPlayerController->bShowMouseCursor = true; 
-	OwningPlayerController->bEnableClickEvents = true; 
-	OwningPlayerController->bEnableMouseOverEvents = true;
-
 	if (StartLevelMenuUserWidgetClass) {
-		StartLevelMenuUserWidget = CreateWidget<UStartLevelMenuUserWidget>(OwningPlayerController, StartLevelMenuUserWidgetClass);
+		StartLevelMenuUserWidget = CreateWidget<UStartLevelMenuUserWidget>(GetOwningPlayerController(), StartLevelMenuUserWidgetClass);
 		check(StartLevelMenuUserWidget != nullptr);
 
 		StartLevelMenuUserWidget->AddToPlayerScreen();

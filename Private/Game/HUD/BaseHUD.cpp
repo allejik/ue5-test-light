@@ -20,7 +20,10 @@ void ABaseHUD::Tick(const float DeltaSeconds)
 	APlayerController* OwningPlayerController = GetOwningPlayerController();
 
 	// Checks whether user pressed menu button
-	if (OwningPlayerController->WasInputKeyJustPressed(MenuKeyboardButton) || OwningPlayerController->WasInputKeyJustPressed(MenuKeyboardButtonDev)) {
+	if (!IsPlayerMenuUserOpen && (OwningPlayerController->WasInputKeyJustPressed(EKeys::Escape)
+		|| OwningPlayerController->IsInputKeyDown(EKeys::LeftControl)
+		&& OwningPlayerController->IsInputKeyDown(EKeys::Q))) {
+
 		ToggleMenuUserWidget(OwningPlayerController);
 	}
 

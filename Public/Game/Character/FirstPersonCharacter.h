@@ -60,7 +60,7 @@ public:
 	UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
 	USkeletalMeshComponent* FPSMesh;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Character Movement: Walking")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Character Movement: Walking")
 	float SprintSpeedMultiplier;
 
 private:

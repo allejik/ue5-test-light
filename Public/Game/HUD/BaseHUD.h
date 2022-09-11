@@ -14,11 +14,7 @@ class TESTLIGHT_API ABaseHUD : public AHUD
 {
 	GENERATED_BODY()
 
-	const FKey MenuKeyboardButton = EKeys::T;
-	const FKey MenuKeyboardButtonDev = EKeys::T;
-
 	bool IsPlayerMenuUserOpen = false;
-
 	virtual void AddPlayerHUD();
 	virtual void ToggleMenuUserWidget(APlayerController* OwningPlayerController);
 public:

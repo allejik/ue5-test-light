@@ -14,7 +14,7 @@ AFirstPersonCharacter::AFirstPersonCharacter(const FObjectInitializer& ObjectIni
 	PrimaryActorTick.bCanEverTick = true;
 
 	// Set default sprint speed multiplier
-	SprintSpeedMultiplier = 1.5f;
+	SprintSpeedMultiplier = 1.3f;
 
 	// Create a first person camera component.
 	FPSCameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("FirstPersonCamera"));
@@ -27,7 +27,7 @@ AFirstPersonCharacter::AFirstPersonCharacter(const FObjectInitializer& ObjectIni
 	FPSCameraComponent->SetupAttachment(CastChecked<USceneComponent, UCapsuleComponent>(GetCapsuleComponent()));
 
 	// Position the camera slightly above the eyes.
-	FPSCameraComponent->SetRelativeLocation(FVector(0.0f, 0.0f, 50.0f + BaseEyeHeight));
+	FPSCameraComponent->SetRelativeLocation(FVector(0.0f, 0.0f, BaseEyeHeight));
 
 	// Enable the pawn to control camera rotation.
 	FPSCameraComponent->bUsePawnControlRotation = true;

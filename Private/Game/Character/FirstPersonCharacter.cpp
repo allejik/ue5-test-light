@@ -1,13 +1,13 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
-#include "Game/FPSCharacter.h"
-#include "Game/CustomCharacterMovementComponent.h"
+#include "Game/Character/FirstPersonCharacter.h"
+#include "Game/Character/CustomCharacterMovementComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Net/UnrealNetwork.h"
 #include "Blueprint/UserWidget.h"
 
 // Sets default values
-AFPSCharacter::AFPSCharacter(const FObjectInitializer& ObjectInitializer)
+AFirstPersonCharacter::AFirstPersonCharacter(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer.SetDefaultSubobjectClass<UCustomCharacterMovementComponent>(ACharacter::CharacterMovementComponentName))
 {
 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
@@ -48,43 +48,43 @@ AFPSCharacter::AFPSCharacter(const FObjectInitializer& ObjectInitializer)
 }
 
 // Called when the game starts or when spawned
-void AFPSCharacter::BeginPlay()
+void AFirstPersonCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 }
 
 // Called every frame
-void AFPSCharacter::Tick(const float DeltaTime)
+void AFirstPersonCharacter::Tick(const float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 }
 
 // Called to bind functionality to input
-void AFPSCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
+void AFirstPersonCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
-	PlayerInputComponent->BindAxis("MoveForward", this, &AFPSCharacter::MoveForward);
-	PlayerInputComponent->BindAxis("MoveRight", this, &AFPSCharacter::MoveRight);
+	PlayerInputComponent->BindAxis("MoveForward", this, &AFirstPersonCharacter::MoveForward);
+	PlayerInputComponent->BindAxis("MoveRight", this, &AFirstPersonCharacter::MoveRight);
 
-	PlayerInputComponent->BindAxis("Turn", this, &AFPSCharacter::AddControllerYawInput);
-	PlayerInputComponent->BindAxis("LookUp", this, &AFPSCharacter::AddControllerPitchInput);
+	PlayerInputComponent->BindAxis("Turn", this, &AFirstPersonCharacter::AddControllerYawInput);
+	PlayerInputComponent->BindAxis("LookUp", this, &AFirstPersonCharacter::AddControllerPitchInput);
 
-	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &AFPSCharacter::StartJump);
-	PlayerInputComponent->BindAction("Jump", IE_Released, this, &AFPSCharacter::StopJump);
+	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &AFirstPersonCharacter::StartJump);
+	PlayerInputComponent->BindAction("Jump", IE_Released, this, &AFirstPersonCharacter::StopJump);
 
-	PlayerInputComponent->BindAction("Sprint", IE_Pressed, this, &AFPSCharacter::StartSprint);
-	PlayerInputComponent->BindAction("Sprint", IE_Released, this, &AFPSCharacter::StopSprint);
+	PlayerInputComponent->BindAction("Sprint", IE_Pressed, this, &AFirstPersonCharacter::StartSprint);
+	PlayerInputComponent->BindAction("Sprint", IE_Released, this, &AFirstPersonCharacter::StopSprint);
 }
 
-void AFPSCharacter::PostInitializeComponents()
+void AFirstPersonCharacter::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
 
 	CustomCharacterMovementComponent = Cast<UCustomCharacterMovementComponent>(Super::GetMovementComponent());
 }
 
-void AFPSCharacter::MoveForward(const float Value)
+void AFirstPersonCharacter::MoveForward(const float Value)
 {
 	Server_SetWalkingDirection_Implementation(Value, CustomCharacterMovementComponent->WalkingDirection.Y);
 	if (!HasAuthority()) {
@@ -95,7 +95,7 @@ void AFPSCharacter::MoveForward(const float Value)
 	AddMovementInput(Direction, Value);
 }
 
-void AFPSCharacter::MoveRight(const float Value)
+void AFirstPersonCharacter::MoveRight(const float Value)
 {
 	Server_SetWalkingDirection_Implementation(CustomCharacterMovementComponent->WalkingDirection.X, Value);
 	if (!HasAuthority()) {
@@ -106,17 +106,17 @@ void AFPSCharacter::MoveRight(const float Value)
 	AddMovementInput(Direction, Value);
 }
 
-void AFPSCharacter::StartJump()
+void AFirstPersonCharacter::StartJump()
 {
 	bPressedJump = true;
 }
 
-void AFPSCharacter::StopJump()
+void AFirstPersonCharacter::StopJump()
 {
 	bPressedJump = false;
 }
 
-void AFPSCharacter::StartSprint()
+void AFirstPersonCharacter::StartSprint()
 {
 	const float NewMaxWalkSpeed = GetCharacterMovement()->MaxWalkSpeed * SprintSpeedMultiplier;
 	Server_SetSprintSpeed_Implementation(NewMaxWalkSpeed);
@@ -126,7 +126,7 @@ void AFPSCharacter::StartSprint()
 	}
 }
 
-void AFPSCharacter::StopSprint()
+void AFirstPersonCharacter::StopSprint()
 {
 	const float NewMaxWalkSpeed = GetCharacterMovement()->MaxWalkSpeed / SprintSpeedMultiplier;
 	Server_SetSprintSpeed_Implementation(NewMaxWalkSpeed);
@@ -136,22 +136,22 @@ void AFPSCharacter::StopSprint()
 	}
 }
 
-void AFPSCharacter::Server_SetSprintSpeed_Implementation(const float NewMaxWalkSpeed)
+void AFirstPersonCharacter::Server_SetSprintSpeed_Implementation(const float NewMaxWalkSpeed)
 {
 	CustomCharacterMovementComponent->MaxWalkSpeed = NewMaxWalkSpeed;
 }
 
-bool AFPSCharacter::Server_SetSprintSpeed_Validate(const float NewMaxWalkSpeed)
+bool AFirstPersonCharacter::Server_SetSprintSpeed_Validate(const float NewMaxWalkSpeed)
 {
 	return true;
 }
 
-void AFPSCharacter::Server_SetWalkingDirection_Implementation(const float DirectionX, const float DirectionY)
+void AFirstPersonCharacter::Server_SetWalkingDirection_Implementation(const float DirectionX, const float DirectionY)
 {
 	CustomCharacterMovementComponent->WalkingDirection = FVector2D(DirectionX, DirectionY);
 }
 
-bool AFPSCharacter::Server_SetWalkingDirection_Validate(const float DirectionX, const float DirectionY)
+bool AFirstPersonCharacter::Server_SetWalkingDirection_Validate(const float DirectionX, const float DirectionY)
 {
 	return true;
 }

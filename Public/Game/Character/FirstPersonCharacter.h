@@ -5,17 +5,17 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "Camera/CameraComponent.h"
-#include "FPSCharacter.generated.h"
+#include "FirstPersonCharacter.generated.h"
 
 
 UCLASS()
-class TESTLIGHT_API AFPSCharacter : public ACharacter
+class TESTLIGHT_API AFirstPersonCharacter : public ACharacter
 {
 	GENERATED_BODY()
 
 public:
 	// Sets default values for this character's properties
-	explicit AFPSCharacter(const FObjectInitializer& ObjectInitializer);
+	explicit AFirstPersonCharacter(const FObjectInitializer& ObjectInitializer);
 
 	UFUNCTION(BlueprintCallable, Category = "Movement")
 	FORCEINLINE class UCustomCharacterMovementComponent* GetCustomCharacterMovementComponent() const { return CustomCharacterMovementComponent; }

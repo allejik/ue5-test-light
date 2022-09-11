@@ -22,10 +22,10 @@ class TESTLIGHT_API ABaseHUD : public AHUD
 
 	// HUD Widget
 	UPROPERTY(EditAnywhere)
-	TSubclassOf<class UPlayerUserWidget> PlayerUserWidgetClass;
+	TSubclassOf<class UPlayerHUDUserWidget> PlayerUserWidgetClass;
 
 	UPROPERTY()
-	UPlayerUserWidget* PlayerUserWidget;
+	UPlayerHUDUserWidget* PlayerUserWidget;
 
 	// Player Menu Widget
 	UPROPERTY(EditAnywhere)

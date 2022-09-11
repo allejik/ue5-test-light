@@ -1,11 +1,11 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Game/BaseHUD.h"
+#include "Game/HUD/BaseHUD.h"
 
 #include "Blueprint/WidgetBlueprintLibrary.h"
-#include "Game/PlayerMenuUserWidget.h"
-#include "Game/PlayerUserWidget.h"
+#include "Game/UI/PlayerMenuUserWidget.h"
+#include "Game/UI/PlayerHUDUserWidget.h"
 #include "GameFramework/Character.h"
 
 void ABaseHUD::BeginPlay()
@@ -13,7 +13,7 @@ void ABaseHUD::BeginPlay()
 	APlayerController* OwningPlayerController = GetOwningPlayerController();
 
 	if (PlayerUserWidgetClass) {
-		PlayerUserWidget = CreateWidget<UPlayerUserWidget>(OwningPlayerController, PlayerUserWidgetClass);
+		PlayerUserWidget = CreateWidget<UPlayerHUDUserWidget>(OwningPlayerController, PlayerUserWidgetClass);
 		check(PlayerUserWidget != nullptr);
 
 		PlayerUserWidget->AddToPlayerScreen();

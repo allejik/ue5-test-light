@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Game/MainGameModeBase.h"
+#include "Game/GameMode/MainGameModeBase.h"
 
 void AMainGameModeBase::StartPlay()
 {

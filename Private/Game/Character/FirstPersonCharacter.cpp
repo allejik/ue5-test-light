@@ -18,7 +18,10 @@ AFirstPersonCharacter::AFirstPersonCharacter(const FObjectInitializer& ObjectIni
 
 	// Create a first person camera component.
 	FPSCameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("FirstPersonCamera"));
-	check(FPSCameraComponent != nullptr);
+	if (!FPSCameraComponent) {
+		UE_LOG(LogTemp, Log, TEXT("Cannot create FPSCameraComponent in FirstPersonCharacter"));
+		return;
+	}
 
 	// Attach the camera component to our capsule component.
 	FPSCameraComponent->SetupAttachment(CastChecked<USceneComponent, UCapsuleComponent>(GetCapsuleComponent()));
@@ -31,7 +34,10 @@ AFirstPersonCharacter::AFirstPersonCharacter(const FObjectInitializer& ObjectIni
 
 	// Create a first person mesh component for the owning player.
 	FPSMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("FirstPersonMesh"));
-	check(FPSMesh != nullptr);
+	if (!FPSCameraComponent) {
+		UE_LOG(LogTemp, Log, TEXT("Cannot create FPSMesh in FirstPersonCharacter"));
+		return;
+	}
 
 	// Only the owning player sees this mesh.
 	FPSMesh->SetOnlyOwnerSee(true);
@@ -45,18 +51,6 @@ AFirstPersonCharacter::AFirstPersonCharacter(const FObjectInitializer& ObjectIni
 
 	// The owning player doesn't see the regular (third-person) body mesh.
 	GetMesh()->SetOwnerNoSee(true);
-}
-
-// Called when the game starts or when spawned
-void AFirstPersonCharacter::BeginPlay()
-{
-	Super::BeginPlay();
-}
-
-// Called every frame
-void AFirstPersonCharacter::Tick(const float DeltaTime)
-{
-	Super::Tick(DeltaTime);
 }
 
 // Called to bind functionality to input

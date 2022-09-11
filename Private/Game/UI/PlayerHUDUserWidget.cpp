@@ -6,7 +6,10 @@
 
 void UPlayerHUDUserWidget::SetHealthBar(const float CurrentHealth, const float MaxHealth)
 {
-	if (HealthBar) {
-		HealthBar->SetPercent(CurrentHealth / MaxHealth);
+	if (!HealthBar) {
+		UE_LOG(LogTemp, Log, TEXT("HealthBar does not exist in PlayerHUDUserWidget"));
+		return;
 	}
+
+	HealthBar->SetPercent(CurrentHealth / MaxHealth);
 }

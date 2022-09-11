@@ -2,7 +2,6 @@
 
 
 #include "Game/HUD/BaseHUD.h"
-
 #include "Blueprint/WidgetBlueprintLibrary.h"
 #include "Game/UI/PlayerMenuUserWidget.h"
 #include "Game/UI/PlayerHUDUserWidget.h"
@@ -10,17 +9,8 @@
 
 void ABaseHUD::BeginPlay()
 {
-	APlayerController* OwningPlayerController = GetOwningPlayerController();
-
-	if (PlayerUserWidgetClass) {
-		PlayerUserWidget = CreateWidget<UPlayerHUDUserWidget>(OwningPlayerController, PlayerUserWidgetClass);
-		check(PlayerUserWidget != nullptr);
-
-		PlayerUserWidget->AddToPlayerScreen();
-
-		// Sets focus to Game 
-		UWidgetBlueprintLibrary::SetInputMode_GameOnly(OwningPlayerController);
-	}
+	Super::BeginPlay();
+	AddPlayerHUD();
 }
 
 void ABaseHUD::Tick(const float DeltaSeconds)
@@ -29,57 +19,77 @@ void ABaseHUD::Tick(const float DeltaSeconds)
 
 	APlayerController* OwningPlayerController = GetOwningPlayerController();
 
-	if (OwningPlayerController->WasInputKeyJustPressed(EKeys::T))
-	{
-		AddMenuUserWidget();
+	// Checks whether user pressed menu button
+	if (OwningPlayerController->WasInputKeyJustPressed(MenuKeyboardButton) || OwningPlayerController->WasInputKeyJustPressed(MenuKeyboardButtonDev)) {
+		ToggleMenuUserWidget(OwningPlayerController);
 	}
 
+	// Checks whether user menu should be removed
 	if (IsPlayerMenuUserOpen && !PlayerMenuUserWidget->IsVisible()) {
-		PlayerMenuUserWidget->RemoveFromParent();
-		PlayerMenuUserWidget = nullptr;
-		
-		// Enables/Disables cursor and click events
-		OwningPlayerController->bShowMouseCursor = false; 
-		OwningPlayerController->bEnableClickEvents = false; 
-		OwningPlayerController->bEnableMouseOverEvents = false;
-	
-		// Enables/Disables player movement
-		OwningPlayerController->SetIgnoreLookInput(false);
-		OwningPlayerController->SetIgnoreMoveInput(false);
-
-		IsPlayerMenuUserOpen = false;
-
-		// Sets focus to Game 
-		UWidgetBlueprintLibrary::SetInputMode_GameOnly(OwningPlayerController);
+		ToggleMenuUserWidget(OwningPlayerController);
 	}
 }
 
-void ABaseHUD::AddMenuUserWidget()
+void ABaseHUD::AddPlayerHUD()
 {
-	if (PlayerMenuUserWidgetClass) {
-		APlayerController* OwningPlayerController = GetOwningPlayerController();
-
-		// Enables/Disables cursor and click events
-		OwningPlayerController->bShowMouseCursor = true; 
-		OwningPlayerController->bEnableClickEvents = true; 
-		OwningPlayerController->bEnableMouseOverEvents = true;
+	if (!PlayerHUDUserWidgetClass) {
+		UE_LOG(LogTemp, Error, TEXT("PlayerHUDUserWidgetClass is not assigned to BaseHUD"));
+		return;
+	}
 	
-		// Enables/Disables player movement
-		OwningPlayerController->SetIgnoreLookInput(true);
-		OwningPlayerController->SetIgnoreMoveInput(true);
+	APlayerController* OwningPlayerController = GetOwningPlayerController();
 
+	PlayerHUDUserWidget = CreateWidget<UPlayerHUDUserWidget>(OwningPlayerController, PlayerHUDUserWidgetClass);
+	if (!PlayerHUDUserWidget) {
+		UE_LOG(LogTemp, Log, TEXT("Cannot create PlayerHUDUserWidget in BaseHUD"));
+		return;
+	}
+
+	PlayerHUDUserWidget->AddToPlayerScreen();
+
+	// Sets focus to Game 
+	UWidgetBlueprintLibrary::SetInputMode_GameOnly(OwningPlayerController);
+}
+
+void ABaseHUD::ToggleMenuUserWidget(APlayerController* OwningPlayerController)
+{
+	if (!PlayerMenuUserWidgetClass) {
+		UE_LOG(LogTemp, Error, TEXT("PlayerMenuUserWidgetClass is not assigned to BaseHUD"));
+		return;
+	}
+
+	// Enables/Disables cursor and click events
+	OwningPlayerController->bShowMouseCursor = !IsPlayerMenuUserOpen; 
+	OwningPlayerController->bEnableClickEvents = !IsPlayerMenuUserOpen; 
+	OwningPlayerController->bEnableMouseOverEvents = !IsPlayerMenuUserOpen;
+	
+	// Enables/Disables player movement
+	OwningPlayerController->SetIgnoreLookInput(!IsPlayerMenuUserOpen);
+	OwningPlayerController->SetIgnoreMoveInput(!IsPlayerMenuUserOpen);
+	
+	if (!IsPlayerMenuUserOpen) {
 		// Sets cursor location in the center of the screen
 		FVector2D ScreenSize;
 		GEngine->GameViewport->GetViewportSize(ScreenSize);
 		OwningPlayerController->SetMouseLocation(ScreenSize.X / 2, ScreenSize.Y / 2);
 
 		PlayerMenuUserWidget = CreateWidget<UPlayerMenuUserWidget>(GetOwningPlayerController(), PlayerMenuUserWidgetClass);
-		check(PlayerMenuUserWidget != nullptr);
+		if (PlayerMenuUserWidget == nullptr) {
+			UE_LOG(LogTemp, Log, TEXT("Cannot create PlayerMenuUserWidget in BaseHUD"));
+			return;
+		}
 
-		IsPlayerMenuUserOpen = true;
 		PlayerMenuUserWidget->AddToPlayerScreen();
 
 		// Sets focus to UI 
 		UWidgetBlueprintLibrary::SetInputMode_UIOnlyEx(OwningPlayerController, PlayerMenuUserWidget, EMouseLockMode::LockAlways);
+	} else {
+		PlayerMenuUserWidget->RemoveFromParent();
+		PlayerMenuUserWidget = nullptr;
+
+		// Sets focus to Game 
+		UWidgetBlueprintLibrary::SetInputMode_GameOnly(OwningPlayerController);
 	}
+
+	IsPlayerMenuUserOpen = !IsPlayerMenuUserOpen;
 }

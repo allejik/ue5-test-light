@@ -14,18 +14,23 @@ class TESTLIGHT_API ABaseHUD : public AHUD
 {
 	GENERATED_BODY()
 
+	const FKey MenuKeyboardButton = EKeys::T;
+	const FKey MenuKeyboardButtonDev = EKeys::T;
+
+	bool IsPlayerMenuUserOpen = false;
+
+	virtual void AddPlayerHUD();
+	virtual void ToggleMenuUserWidget(APlayerController* OwningPlayerController);
+public:
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaSeconds) override;
 
-	UFUNCTION()
-	virtual void AddMenuUserWidget();
-
 	// HUD Widget
 	UPROPERTY(EditAnywhere)
-	TSubclassOf<class UPlayerHUDUserWidget> PlayerUserWidgetClass;
+	TSubclassOf<class UPlayerHUDUserWidget> PlayerHUDUserWidgetClass;
 
 	UPROPERTY()
-	UPlayerHUDUserWidget* PlayerUserWidget;
+	UPlayerHUDUserWidget* PlayerHUDUserWidget;
 
 	// Player Menu Widget
 	UPROPERTY(EditAnywhere)
@@ -33,7 +38,4 @@ class TESTLIGHT_API ABaseHUD : public AHUD
 
 	UPROPERTY()
 	UPlayerMenuUserWidget* PlayerMenuUserWidget;
-
-	UPROPERTY()
-	bool IsPlayerMenuUserOpen = false;
 };

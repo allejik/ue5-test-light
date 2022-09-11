@@ -14,6 +14,7 @@ class TESTLIGHT_API AStartLevelHUD : public AHUD
 {
 	GENERATED_BODY()
 	
+	virtual void AddMenu();
 public:
 	virtual void BeginPlay() override;
 

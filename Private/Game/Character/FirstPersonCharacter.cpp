@@ -5,6 +5,7 @@
 #include "Components/CapsuleComponent.h"
 #include "Net/UnrealNetwork.h"
 #include "Blueprint/UserWidget.h"
+#include "Kismet/GameplayStatics.h"
 
 // Sets default values
 AFirstPersonCharacter::AFirstPersonCharacter(const FObjectInitializer& ObjectInitializer)
@@ -148,4 +149,16 @@ void AFirstPersonCharacter::Server_SetWalkingDirection_Implementation(const floa
 bool AFirstPersonCharacter::Server_SetWalkingDirection_Validate(const float DirectionX, const float DirectionY)
 {
 	return true;
+}
+
+void AFirstPersonCharacter::PlayerFootstepSound()
+{
+	if (IsLocallyControlled()) {
+		UE_LOG(LogTemp, Warning, TEXT("sound at location: %s"), *FString(GetActorLocation().ToString()));
+		UGameplayStatics::PlaySoundAtLocation(
+			GetWorld(),
+			FootstepSound,
+			GetActorLocation()
+		);
+	}
 }

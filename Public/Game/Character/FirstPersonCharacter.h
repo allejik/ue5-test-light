@@ -52,6 +52,8 @@ public:
 	bool Server_SetWalkingDirection_Validate(const float DirectionX, const float DirectionY);
 	void Server_SetWalkingDirection_Implementation(const float DirectionX, const float DirectionY);
 
+	void PlayerFootstepSound();
+
 	// FPS camera
 	UPROPERTY(VisibleAnywhere)
 	UCameraComponent* FPSCameraComponent;
@@ -62,6 +64,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Character Movement: Walking")
 	float SprintSpeedMultiplier;
+
+	UPROPERTY(EditAnywhere, Category = "Character Sound: Walking")
+	USoundBase* FootstepSound;
 
 private:
 	UPROPERTY()

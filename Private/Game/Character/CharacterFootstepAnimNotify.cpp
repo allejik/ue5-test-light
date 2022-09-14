@@ -3,6 +3,7 @@
 
 #include "Game/Character/CharacterFootstepAnimNotify.h"
 #include "Game/Character/FirstPersonCharacter.h"
+#include "Kismet/GameplayStatics.h"
 
 void UCharacterFootstepAnimNotify::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference)
 {
@@ -14,5 +15,9 @@ void UCharacterFootstepAnimNotify::Notify(USkeletalMeshComponent* MeshComp, UAni
 		return;
 	}
 
-	Character->PlayerFootstepSound();
+	// I do not know why but this event is fired for all clients
+	if (Character->IsLocallyControlled()) {
+		UE_LOG(LogTemp, Error, TEXT("Make a sound for unique player id: %d"), Character->GetUniqueID());
+		Character->Server_PlayerFootstepSound();
+	}
 }

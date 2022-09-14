@@ -52,7 +52,14 @@ public:
 	bool Server_SetWalkingDirection_Validate(const float DirectionX, const float DirectionY);
 	void Server_SetWalkingDirection_Implementation(const float DirectionX, const float DirectionY);
 
-	void PlayerFootstepSound();
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastPlayerFootstepSound();
+	void MulticastPlayerFootstepSound_Implementation();
+
+	UFUNCTION(Server, Reliable, WithValidation)
+	void Server_PlayerFootstepSound();
+	void Server_PlayerFootstepSound_Implementation();
+	bool Server_PlayerFootstepSound_Validate();
 
 	// FPS camera
 	UPROPERTY(VisibleAnywhere)

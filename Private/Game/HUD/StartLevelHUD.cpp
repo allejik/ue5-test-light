@@ -4,12 +4,30 @@
 #include "Game/HUD/StartLevelHUD.h"
 #include "Game/UI/StartLevelMenuUserWidget.h"
 #include "Blueprint/UserWidget.h"
-#include "Blueprint/WidgetBlueprintLibrary.h"\
+#include "Blueprint/WidgetBlueprintLibrary.h"
 
 void AStartLevelHUD::BeginPlay()
 {
 	Super::BeginPlay();
 	AddMenu();
+}
+
+void AStartLevelHUD::Tick(const float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+
+	// Workaround for waiting when level is loaded
+	if (TickCounter < 2) {
+		CenterMouseLocation();
+		++TickCounter;
+	}
+}
+
+void AStartLevelHUD::CenterMouseLocation()
+{
+	FVector2D ScreenSize;
+	GEngine->GameViewport->GetViewportSize(ScreenSize);
+	GetOwningPlayerController()->SetMouseLocation(ScreenSize.X / 2, ScreenSize.Y / 2);
 }
 
 void AStartLevelHUD::AddMenu()

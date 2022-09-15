@@ -15,8 +15,13 @@ class TESTLIGHT_API AStartLevelHUD : public AHUD
 	GENERATED_BODY()
 	
 	virtual void AddMenu();
+	virtual void CenterMouseLocation();
+
+	int TickCounter;
 public:
 	virtual void BeginPlay() override;
+	virtual void Tick(float DeltaSeconds) override;
+	
 
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<class UStartLevelMenuUserWidget> StartLevelMenuUserWidgetClass;

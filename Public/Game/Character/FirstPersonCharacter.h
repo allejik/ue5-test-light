@@ -42,6 +42,12 @@ public:
 	void StartSprint();
 	void StopSprint();
 
+	UFUNCTION()
+	void StartCrouch();
+
+	UFUNCTION()
+	void StopCrouch();
+
 	UFUNCTION(Server, Reliable, WithValidation)
 	void Server_SetSprintSpeed(const float NewMaxWalkSpeed);
 	bool Server_SetSprintSpeed_Validate(const float NewMaxWalkSpeed);

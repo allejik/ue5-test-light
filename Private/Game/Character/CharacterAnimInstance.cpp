@@ -8,6 +8,7 @@ UCharacterAnimInstance::UCharacterAnimInstance()
 {
 	Speed = 0;
 	IsJumping = false;
+	IsCrouching = false;
 }
 
 void UCharacterAnimInstance::NativeUpdateAnimation(const float DeltaSeconds)
@@ -18,5 +19,6 @@ void UCharacterAnimInstance::NativeUpdateAnimation(const float DeltaSeconds)
 	if (PawnOwner != nullptr) {
 		Speed = PawnOwner->GetVelocity().Size();
 		IsJumping = PawnOwner->GetMovementComponent()->IsFalling();
+		IsCrouching = PawnOwner->GetMovementComponent()->IsCrouching();
 	}
 }

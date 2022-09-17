@@ -24,5 +24,8 @@ public:
 	UPROPERTY(BlueprintReadOnly)
 	bool IsJumping;
 
+	UPROPERTY(BlueprintReadOnly)
+	bool IsCrouching;
+
 	virtual void NativeUpdateAnimation(float DeltaSeconds) override;
 };

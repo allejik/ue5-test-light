@@ -70,6 +70,9 @@ void AFirstPersonCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInp
 
 	PlayerInputComponent->BindAction("Sprint", IE_Pressed, this, &AFirstPersonCharacter::StartSprint);
 	PlayerInputComponent->BindAction("Sprint", IE_Released, this, &AFirstPersonCharacter::StopSprint);
+
+	PlayerInputComponent->BindAction("Crouch", IE_Pressed, this, &AFirstPersonCharacter::StartCrouch);
+	PlayerInputComponent->BindAction("Crouch", IE_Released, this, &AFirstPersonCharacter::StopCrouch);
 }
 
 void AFirstPersonCharacter::PostInitializeComponents()
@@ -109,6 +112,16 @@ void AFirstPersonCharacter::StartJump()
 void AFirstPersonCharacter::StopJump()
 {
 	bPressedJump = false;
+}
+
+void AFirstPersonCharacter::StartCrouch()
+{
+	Crouch();
+}
+
+void AFirstPersonCharacter::StopCrouch()
+{
+	UnCrouch();
 }
 
 void AFirstPersonCharacter::StartSprint()

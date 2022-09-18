@@ -6,52 +6,121 @@
 #include "Net/UnrealNetwork.h"
 #include "Blueprint/UserWidget.h"
 #include "Kismet/GameplayStatics.h"
+#include "OnlineSubsystem.h"
+#include "OnlineSessionSettings.h"
 
 // Sets default values
-AFirstPersonCharacter::AFirstPersonCharacter(const FObjectInitializer& ObjectInitializer)
-	: Super(ObjectInitializer.SetDefaultSubobjectClass<UCustomCharacterMovementComponent>(ACharacter::CharacterMovementComponentName))
+AFirstPersonCharacter::AFirstPersonCharacter(const FObjectInitializer& ObjectInitializer):
+	Super(ObjectInitializer.SetDefaultSubobjectClass<UCustomCharacterMovementComponent>(CharacterMovementComponentName)),
+	CreateSessionCompleteDelegate(FOnCreateSessionCompleteDelegate::CreateUObject(this, &ThisClass::OnCreateSessionComplete))
 {
-	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
 	// Set default sprint speed multiplier
 	SprintSpeedMultiplier = 1.3f;
 
 	// Create a first person camera component.
-	FPSCameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("FirstPersonCamera"));
-	if (!FPSCameraComponent) {
-		UE_LOG(LogTemp, Log, TEXT("Cannot create FPSCameraComponent in FirstPersonCharacter"));
+	CharacterCameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("FirstPersonCamera"));
+	if (!CharacterCameraComponent) {
+		UE_LOG(LogTemp, Error, TEXT("Cannot create FPSCameraComponent in FirstPersonCharacter"));
 		return;
 	}
 
 	// Attach the camera component to our capsule component.
-	FPSCameraComponent->SetupAttachment(CastChecked<USceneComponent, UCapsuleComponent>(GetCapsuleComponent()));
+	CharacterCameraComponent->SetupAttachment(CastChecked<USceneComponent, UCapsuleComponent>(GetCapsuleComponent()));
 
 	// Position the camera slightly above the eyes.
-	FPSCameraComponent->SetRelativeLocation(FVector(0.0f, 0.0f, BaseEyeHeight));
+	CharacterCameraComponent->SetRelativeLocation(FVector(0.0f, 0.0f, BaseEyeHeight));
 
 	// Enable the pawn to control camera rotation.
-	FPSCameraComponent->bUsePawnControlRotation = true;
+	CharacterCameraComponent->bUsePawnControlRotation = true;
 
 	// Create a first person mesh component for the owning player.
-	FPSMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("FirstPersonMesh"));
-	if (!FPSCameraComponent) {
-		UE_LOG(LogTemp, Log, TEXT("Cannot create FPSMesh in FirstPersonCharacter"));
+	CharacterMeshComponent = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("FirstPersonMesh"));
+	if (!CharacterCameraComponent) {
+		UE_LOG(LogTemp, Error, TEXT("Cannot create FPSMesh in FirstPersonCharacter"));
 		return;
 	}
 
 	// Only the owning player sees this mesh.
-	FPSMesh->SetOnlyOwnerSee(true);
+	CharacterMeshComponent->SetOnlyOwnerSee(true);
 
 	// Attach the FPS mesh to the FPS camera.
-	FPSMesh->SetupAttachment(FPSCameraComponent);
+	CharacterMeshComponent->SetupAttachment(CharacterCameraComponent);
 
 	// Disable some environmental shadows to preserve the illusion of having a single mesh.
-	FPSMesh->bCastDynamicShadow = false;
-	FPSMesh->CastShadow = false;
+	CharacterMeshComponent->bCastDynamicShadow = false;
+	CharacterMeshComponent->CastShadow = false;
 
 	// The owning player doesn't see the regular (third-person) body mesh.
 	GetMesh()->SetOwnerNoSee(true);
+
+	// Initializes online session
+	const IOnlineSubsystem* OnlineSubsystem = IOnlineSubsystem::Get();
+	if (!OnlineSubsystem) {
+		UE_LOG(LogTemp, Error, TEXT("Cannot get OnlineSubsystem in FirstPersonCharacter"));
+		return;
+	}
+
+	OnlineSessionInterface = OnlineSubsystem->GetSessionInterface();
+
+	if (GEngine) {
+		GEngine->AddOnScreenDebugMessage(
+			-1,
+			15.0f,
+			FColor::Yellow,
+			FString::Printf(TEXT("%s"), *OnlineSubsystem->GetSubsystemName().ToString())
+		);
+	}
+}
+
+void AFirstPersonCharacter::CreateGameSession()
+{
+	if (!OnlineSessionInterface.IsValid()) {
+		return;
+	}
+
+	const auto ExistingSession = OnlineSessionInterface->GetNamedSession(NAME_GameSession);
+	if (ExistingSession != nullptr) {
+		OnlineSessionInterface->DestroySession(NAME_GameSession);
+	}
+
+	OnlineSessionInterface->AddOnCreateSessionCompleteDelegate_Handle(CreateSessionCompleteDelegate);
+
+	TSharedPtr<FOnlineSessionSettings> SessionSettings = MakeShareable(new FOnlineSessionSettings());
+	SessionSettings->bIsLANMatch = false;
+	SessionSettings->NumPublicConnections = 4;
+	SessionSettings->bAllowJoinInProgress = true;
+	SessionSettings->bAllowJoinViaPresence = true;
+	SessionSettings->bShouldAdvertise = true;
+	SessionSettings->bUsesPresence = true;
+
+	const ULocalPlayer* LocalPlayer = GetWorld()->GetFirstLocalPlayerFromController();
+
+	OnlineSessionInterface->CreateSession(*LocalPlayer->GetPreferredUniqueNetId(), NAME_GameSession, *SessionSettings);
+}
+
+void AFirstPersonCharacter::OnCreateSessionComplete(FName SessionName, bool bWasSuccessful)
+{
+	if (bWasSuccessful) {
+		if (GEngine) {
+			GEngine->AddOnScreenDebugMessage(
+				-1,
+				15.0f,
+				FColor::Green,
+				FString::Printf(TEXT("Created a session"))
+			);
+		}
+	} else {
+		if (GEngine) {
+			GEngine->AddOnScreenDebugMessage(
+				-1,
+				15.0f,
+				FColor::Red,
+				FString::Printf(TEXT("Failed to create a session"))
+			);
+		}
+	}
 }
 
 // Called to bind functionality to input
@@ -164,24 +233,24 @@ bool AFirstPersonCharacter::Server_SetWalkingDirection_Validate(const float Dire
 	return true;
 }
 
-void AFirstPersonCharacter::Server_PlayerFootstepSound_Implementation()
+void AFirstPersonCharacter::Server_PlayPlayerSound_Implementation(USoundBase* Sound)
 {
 	// To send a multicast request, we must first send a request to the server
-	MulticastPlayerFootstepSound();
+	Multicast_PlayPlayerSound(Sound);
 }
 
-bool AFirstPersonCharacter::Server_PlayerFootstepSound_Validate()
+bool AFirstPersonCharacter::Server_PlayPlayerSound_Validate(USoundBase* Sound)
 {
 	return true;
 }
 
-void AFirstPersonCharacter::MulticastPlayerFootstepSound_Implementation()
+void AFirstPersonCharacter::Multicast_PlayPlayerSound_Implementation(USoundBase* Sound)
 {
 	// Play the footsteps of the current player as 2d 
 	if (IsLocallyControlled()) {
 		UGameplayStatics::PlaySound2D(
 			GetWorld(),
-			FootstepSound
+			Sound
 		);
 		return;
 	}
@@ -189,7 +258,7 @@ void AFirstPersonCharacter::MulticastPlayerFootstepSound_Implementation()
 	// Play the footsteps of other players at location 
 	UGameplayStatics::PlaySoundAtLocation(
 		GetWorld(),
-		FootstepSound,
+		Sound,
 		GetActorLocation(),
 		GetActorRotation()
 	);

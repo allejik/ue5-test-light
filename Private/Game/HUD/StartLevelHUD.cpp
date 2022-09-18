@@ -46,7 +46,7 @@ void AStartLevelHUD::AddMenu()
 
 	StartLevelMenuUserWidget = CreateWidget<UStartLevelMenuUserWidget>(GetOwningPlayerController(), StartLevelMenuUserWidgetClass);
 	if (!StartLevelMenuUserWidget) {
-		UE_LOG(LogTemp, Log, TEXT("Cannot create StartLevelMenuUserWidget in StartLevelHUD"));
+		UE_LOG(LogTemp, Error, TEXT("Cannot create StartLevelMenuUserWidget in StartLevelHUD"));
 		return;
 	}
 

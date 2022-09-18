@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "Camera/CameraComponent.h"
+#include "Interfaces/OnlineSessionInterface.h"
 #include "FirstPersonCharacter.generated.h"
 
 
@@ -14,37 +15,29 @@ class TESTLIGHT_API AFirstPersonCharacter : public ACharacter
 	GENERATED_BODY()
 
 public:
-	// Sets default values for this character's properties
 	explicit AFirstPersonCharacter(const FObjectInitializer& ObjectInitializer);
+
+	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
+	virtual void PostInitializeComponents() override;
 
 	UFUNCTION(BlueprintCallable, Category = "Movement")
 	FORCEINLINE class UCustomCharacterMovementComponent* GetCustomCharacterMovementComponent() const { return CustomCharacterMovementComponent; }
 
-	// Called to bind functionality to input
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-
-	virtual void PostInitializeComponents() override;
-
-	// Handles input for moving forward and backward.
+	// Movement
 	UFUNCTION()
 	void MoveForward(float Value);
-
-	// Handles input for moving right and left.
 	UFUNCTION()
 	void MoveRight(float Value);
-
 	UFUNCTION()
 	void StartJump();
-
 	UFUNCTION()
 	void StopJump();
-
+	UFUNCTION()
 	void StartSprint();
+	UFUNCTION()
 	void StopSprint();
-
 	UFUNCTION()
 	void StartCrouch();
-
 	UFUNCTION()
 	void StopCrouch();
 
@@ -53,35 +46,45 @@ public:
 	bool Server_SetSprintSpeed_Validate(const float NewMaxWalkSpeed);
 	void Server_SetSprintSpeed_Implementation(const float NewMaxWalkSpeed);
 
+	// Sets the direction for custom movement component to follow the mouse while jumping
 	UFUNCTION(Server, Reliable, WithValidation)
 	void Server_SetWalkingDirection(const float DirectionX, const float DirectionY);
 	bool Server_SetWalkingDirection_Validate(const float DirectionX, const float DirectionY);
 	void Server_SetWalkingDirection_Implementation(const float DirectionX, const float DirectionY);
 
+	// Plays player sound for player and other players
 	UFUNCTION(NetMulticast, Reliable)
-	void MulticastPlayerFootstepSound();
-	void MulticastPlayerFootstepSound_Implementation();
+	void Multicast_PlayPlayerSound(USoundBase* Sound);
+	void Multicast_PlayPlayerSound_Implementation(USoundBase* Sound);
 
 	UFUNCTION(Server, Reliable, WithValidation)
-	void Server_PlayerFootstepSound();
-	void Server_PlayerFootstepSound_Implementation();
-	bool Server_PlayerFootstepSound_Validate();
+	void Server_PlayPlayerSound(USoundBase* Sound);
+	void Server_PlayPlayerSound_Implementation(USoundBase* Sound);
+	bool Server_PlayPlayerSound_Validate(USoundBase* Sound);
 
-	// FPS camera
+	// FPS camera and mesh
 	UPROPERTY(VisibleAnywhere)
-	UCameraComponent* FPSCameraComponent;
+	UCameraComponent* CharacterCameraComponent;
 
-	// First-person mesh (arms), visible only to the owning player.
 	UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
-	USkeletalMeshComponent* FPSMesh;
+	USkeletalMeshComponent* CharacterMeshComponent;
 
+	// Max walking speed multiplied by this value
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Character Movement: Walking")
 	float SprintSpeedMultiplier;
-
-	UPROPERTY(EditAnywhere, Category = "Character Sound: Walking")
-	USoundBase* FootstepSound;
 
 private:
 	UPROPERTY()
 	UCustomCharacterMovementComponent* CustomCharacterMovementComponent;
+
+// Online session
+public:
+	IOnlineSessionPtr OnlineSessionInterface; 
+
+protected:
+	UFUNCTION(BlueprintCallable)
+	void CreateGameSession();
+	void OnCreateSessionComplete(FName SessionName, bool bWasSuccessful);
+private:
+	FOnCreateSessionCompleteDelegate CreateSessionCompleteDelegate;
 };

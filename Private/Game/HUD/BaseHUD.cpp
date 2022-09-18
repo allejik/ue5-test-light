@@ -44,7 +44,7 @@ void ABaseHUD::AddPlayerHUD()
 
 	PlayerHUDUserWidget = CreateWidget<UPlayerHUDUserWidget>(OwningPlayerController, PlayerHUDUserWidgetClass);
 	if (!PlayerHUDUserWidget) {
-		UE_LOG(LogTemp, Log, TEXT("Cannot create PlayerHUDUserWidget in BaseHUD"));
+		UE_LOG(LogTemp, Error, TEXT("Cannot create PlayerHUDUserWidget in BaseHUD"));
 		return;
 	}
 
@@ -78,7 +78,7 @@ void ABaseHUD::ToggleMenuUserWidget(APlayerController* OwningPlayerController)
 
 		PlayerMenuUserWidget = CreateWidget<UPlayerMenuUserWidget>(GetOwningPlayerController(), PlayerMenuUserWidgetClass);
 		if (PlayerMenuUserWidget == nullptr) {
-			UE_LOG(LogTemp, Log, TEXT("Cannot create PlayerMenuUserWidget in BaseHUD"));
+			UE_LOG(LogTemp, Error, TEXT("Cannot create PlayerMenuUserWidget in BaseHUD"));
 			return;
 		}
 

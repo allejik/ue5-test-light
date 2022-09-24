@@ -6,13 +6,10 @@
 #include "Net/UnrealNetwork.h"
 #include "Blueprint/UserWidget.h"
 #include "Kismet/GameplayStatics.h"
-#include "OnlineSubsystem.h"
-#include "OnlineSessionSettings.h"
 
 // Sets default values
 AFirstPersonCharacter::AFirstPersonCharacter(const FObjectInitializer& ObjectInitializer):
-	Super(ObjectInitializer.SetDefaultSubobjectClass<UCustomCharacterMovementComponent>(CharacterMovementComponentName)),
-	CreateSessionCompleteDelegate(FOnCreateSessionCompleteDelegate::CreateUObject(this, &ThisClass::OnCreateSessionComplete))
+	Super(ObjectInitializer.SetDefaultSubobjectClass<UCustomCharacterMovementComponent>(CharacterMovementComponentName))
 {
 	PrimaryActorTick.bCanEverTick = true;
 
@@ -54,73 +51,6 @@ AFirstPersonCharacter::AFirstPersonCharacter(const FObjectInitializer& ObjectIni
 
 	// The owning player doesn't see the regular (third-person) body mesh.
 	GetMesh()->SetOwnerNoSee(true);
-
-	// Initializes online session
-	const IOnlineSubsystem* OnlineSubsystem = IOnlineSubsystem::Get();
-	if (!OnlineSubsystem) {
-		UE_LOG(LogTemp, Error, TEXT("Cannot get OnlineSubsystem in FirstPersonCharacter"));
-		return;
-	}
-
-	OnlineSessionInterface = OnlineSubsystem->GetSessionInterface();
-
-	if (GEngine) {
-		GEngine->AddOnScreenDebugMessage(
-			-1,
-			15.0f,
-			FColor::Yellow,
-			FString::Printf(TEXT("%s"), *OnlineSubsystem->GetSubsystemName().ToString())
-		);
-	}
-}
-
-void AFirstPersonCharacter::CreateGameSession()
-{
-	if (!OnlineSessionInterface.IsValid()) {
-		return;
-	}
-
-	const auto ExistingSession = OnlineSessionInterface->GetNamedSession(NAME_GameSession);
-	if (ExistingSession != nullptr) {
-		OnlineSessionInterface->DestroySession(NAME_GameSession);
-	}
-
-	OnlineSessionInterface->AddOnCreateSessionCompleteDelegate_Handle(CreateSessionCompleteDelegate);
-
-	TSharedPtr<FOnlineSessionSettings> SessionSettings = MakeShareable(new FOnlineSessionSettings());
-	SessionSettings->bIsLANMatch = false;
-	SessionSettings->NumPublicConnections = 4;
-	SessionSettings->bAllowJoinInProgress = true;
-	SessionSettings->bAllowJoinViaPresence = true;
-	SessionSettings->bShouldAdvertise = true;
-	SessionSettings->bUsesPresence = true;
-
-	const ULocalPlayer* LocalPlayer = GetWorld()->GetFirstLocalPlayerFromController();
-
-	OnlineSessionInterface->CreateSession(*LocalPlayer->GetPreferredUniqueNetId(), NAME_GameSession, *SessionSettings);
-}
-
-void AFirstPersonCharacter::OnCreateSessionComplete(FName SessionName, bool bWasSuccessful)
-{
-	if (bWasSuccessful) {
-		if (GEngine) {
-			GEngine->AddOnScreenDebugMessage(
-				-1,
-				15.0f,
-				FColor::Green,
-				FString::Printf(TEXT("Created a session"))
-			);
-		}
-	} else {
-		if (GEngine) {
-			GEngine->AddOnScreenDebugMessage(
-				-1,
-				15.0f,
-				FColor::Red,
-				FString::Printf(TEXT("Failed to create a session"))
-			);
-		}
-	}
 }
 
 // Called to bind functionality to input

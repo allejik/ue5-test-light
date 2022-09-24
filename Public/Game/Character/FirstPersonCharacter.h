@@ -76,15 +76,4 @@ public:
 private:
 	UPROPERTY()
 	UCustomCharacterMovementComponent* CustomCharacterMovementComponent;
-
-// Online session
-public:
-	IOnlineSessionPtr OnlineSessionInterface; 
-
-protected:
-	UFUNCTION(BlueprintCallable)
-	void CreateGameSession();
-	void OnCreateSessionComplete(FName SessionName, bool bWasSuccessful);
-private:
-	FOnCreateSessionCompleteDelegate CreateSessionCompleteDelegate;
 };

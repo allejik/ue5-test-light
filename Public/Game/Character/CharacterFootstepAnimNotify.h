@@ -16,4 +16,8 @@ class TESTLIGHT_API UCharacterFootstepAnimNotify : public UAnimNotify
 
 public:
 	virtual void Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference) override;
+
+	UPROPERTY(EditAnywhere)
+	USoundBase* FootstepSound;
 };
+

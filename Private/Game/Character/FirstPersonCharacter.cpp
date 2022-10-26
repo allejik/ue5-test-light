@@ -84,6 +84,8 @@ void AFirstPersonCharacter::PostInitializeComponents()
 void AFirstPersonCharacter::MoveForward(const float Value)
 {
 	Server_SetWalkingDirection_Implementation(Value, CustomCharacterMovementComponent->WalkingDirection.Y);
+
+	// If you're a server, you don't need to set SetWalkingDirection via server
 	if (!HasAuthority()) {
 		Server_SetWalkingDirection(Value, CustomCharacterMovementComponent->WalkingDirection.Y);
 	}
@@ -95,6 +97,8 @@ void AFirstPersonCharacter::MoveForward(const float Value)
 void AFirstPersonCharacter::MoveRight(const float Value)
 {
 	Server_SetWalkingDirection_Implementation(CustomCharacterMovementComponent->WalkingDirection.X, Value);
+
+	// If you're a server, you don't need to set SetWalkingDirection via server
 	if (!HasAuthority()) {
 		Server_SetWalkingDirection(CustomCharacterMovementComponent->WalkingDirection.X, Value);
 	}
@@ -148,41 +152,7 @@ void AFirstPersonCharacter::Server_SetSprintSpeed_Implementation(const float New
 	CustomCharacterMovementComponent->MaxWalkSpeed = NewMaxWalkSpeed;
 }
 
-bool AFirstPersonCharacter::Server_SetSprintSpeed_Validate(const float NewMaxWalkSpeed)
-{
-	return true;
-}
-
 void AFirstPersonCharacter::Server_SetWalkingDirection_Implementation(const float DirectionX, const float DirectionY)
 {
 	CustomCharacterMovementComponent->WalkingDirection = FVector2D(DirectionX, DirectionY);
-}
-
-bool AFirstPersonCharacter::Server_SetWalkingDirection_Validate(const float DirectionX, const float DirectionY)
-{
-	return true;
-}
-
-void AFirstPersonCharacter::Multicast_PlayFootstepSound_Implementation()
-{
-	if (FootstepSound == nullptr) {
-		return;
-	}
-	
-	// Play the footsteps of the current player as 2d 
-	if (IsLocallyControlled()) {
-		UGameplayStatics::PlaySound2D(
-			GetWorld(),
-			FootstepSound
-		);
-		return;
-	}
-
-	// Play the footsteps of other players at location 
-	UGameplayStatics::PlaySoundAtLocation(
-		GetWorld(),
-		FootstepSound,
-		GetActorLocation(),
-		GetActorRotation()
-	);
 }

@@ -15,10 +15,5 @@ class TESTLIGHT_API UCharacterFootstepAnimNotify : public UAnimNotify
 	GENERATED_BODY()
 
 public:
-	explicit UCharacterFootstepAnimNotify();
-
 	virtual void Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference) override;
-
-	UPROPERTY()
-	USoundBase* FootstepSound;
 };

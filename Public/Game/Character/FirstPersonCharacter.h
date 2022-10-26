@@ -23,6 +23,10 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Movement")
 	FORCEINLINE class UCustomCharacterMovementComponent* GetCustomCharacterMovementComponent() const { return CustomCharacterMovementComponent; }
 
+	UFUNCTION(NetMulticast, Reliable)
+	void Multicast_PlayFootstepSound();
+
+protected:
 	// Movement
 	UFUNCTION()
 	void MoveForward(float Value);
@@ -51,16 +55,10 @@ public:
 	void Server_SetWalkingDirection(const float DirectionX, const float DirectionY);
 	bool Server_SetWalkingDirection_Validate(const float DirectionX, const float DirectionY);
 	void Server_SetWalkingDirection_Implementation(const float DirectionX, const float DirectionY);
-
-	// Plays player sound for player and other players
-	UFUNCTION(NetMulticast, Reliable)
-	void Multicast_PlayPlayerSound(USoundBase* Sound);
-	void Multicast_PlayPlayerSound_Implementation(USoundBase* Sound);
-
-	UFUNCTION(Server, Reliable, WithValidation)
-	void Server_PlayPlayerSound(USoundBase* Sound);
-	void Server_PlayPlayerSound_Implementation(USoundBase* Sound);
-	bool Server_PlayPlayerSound_Validate(USoundBase* Sound);
+	
+private:
+	UPROPERTY()
+	UCustomCharacterMovementComponent* CustomCharacterMovementComponent;
 
 	// FPS camera and mesh
 	UPROPERTY(VisibleAnywhere)
@@ -70,10 +68,9 @@ public:
 	USkeletalMeshComponent* CharacterMeshComponent;
 
 	// Max walking speed multiplied by this value
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Character Movement: Walking")
+	UPROPERTY(EditAnywhere, Category = "Character Movement: Walking")
 	float SprintSpeedMultiplier;
 
-private:
-	UPROPERTY()
-	UCustomCharacterMovementComponent* CustomCharacterMovementComponent;
+	UPROPERTY(EditAnywhere, Category = "Character Movement: Walking")
+	USoundBase* FootstepSound;
 };

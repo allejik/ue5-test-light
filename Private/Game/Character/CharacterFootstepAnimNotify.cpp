@@ -4,13 +4,6 @@
 #include "Game/Character/CharacterFootstepAnimNotify.h"
 #include "Game/Character/FirstPersonCharacter.h"
 #include "Kismet/GameplayStatics.h"
-#include "Sound/SoundCue.h"
-
-UCharacterFootstepAnimNotify::UCharacterFootstepAnimNotify()
-{
-	static ConstructorHelpers::FObjectFinder<USoundCue> FootstepSoundFile(TEXT("/Game/Character/Sounds/SC_Footstep"));
-	FootstepSound = FootstepSoundFile.Object;
-}
 
 void UCharacterFootstepAnimNotify::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference)
 {
@@ -22,8 +15,7 @@ void UCharacterFootstepAnimNotify::Notify(USkeletalMeshComponent* MeshComp, UAni
 		return;
 	}
 
-	// I do not know why but this event is fired for all clients
-	if (Character->IsLocallyControlled()) {
-		Character->Server_PlayPlayerSound(FootstepSound);
+	if (Character->GetLocalRole() == ROLE_Authority) {
+		Character->Multicast_PlayFootstepSound();
 	}
 }

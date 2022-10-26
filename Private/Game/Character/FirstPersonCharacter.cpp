@@ -163,24 +163,17 @@ bool AFirstPersonCharacter::Server_SetWalkingDirection_Validate(const float Dire
 	return true;
 }
 
-void AFirstPersonCharacter::Server_PlayPlayerSound_Implementation(USoundBase* Sound)
+void AFirstPersonCharacter::Multicast_PlayFootstepSound_Implementation()
 {
-	// To send a multicast request, we must first send a request to the server
-	Multicast_PlayPlayerSound(Sound);
-}
-
-bool AFirstPersonCharacter::Server_PlayPlayerSound_Validate(USoundBase* Sound)
-{
-	return true;
-}
-
-void AFirstPersonCharacter::Multicast_PlayPlayerSound_Implementation(USoundBase* Sound)
-{
+	if (FootstepSound == nullptr) {
+		return;
+	}
+	
 	// Play the footsteps of the current player as 2d 
 	if (IsLocallyControlled()) {
 		UGameplayStatics::PlaySound2D(
 			GetWorld(),
-			Sound
+			FootstepSound
 		);
 		return;
 	}
@@ -188,7 +181,7 @@ void AFirstPersonCharacter::Multicast_PlayPlayerSound_Implementation(USoundBase*
 	// Play the footsteps of other players at location 
 	UGameplayStatics::PlaySoundAtLocation(
 		GetWorld(),
-		Sound,
+		FootstepSound,
 		GetActorLocation(),
 		GetActorRotation()
 	);

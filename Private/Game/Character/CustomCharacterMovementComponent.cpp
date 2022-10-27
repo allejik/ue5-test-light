@@ -4,6 +4,7 @@
 #include "Game/Character/CustomCharacterMovementComponent.h"
 #include "GameFramework/Character.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "Net/UnrealNetwork.h"
 
 UCustomCharacterMovementComponent::UCustomCharacterMovementComponent(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
@@ -15,6 +16,14 @@ UCustomCharacterMovementComponent::UCustomCharacterMovementComponent(const FObje
 	AirControlBoostVelocityThreshold = 0;
 	WalkingDirection = FVector2D::ZeroVector;
 	PreviousWalkingDirection = FVector2D::ZeroVector;
+}
+
+void UCustomCharacterMovementComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(UCustomCharacterMovementComponent, PreviousWalkingDirection);
+	DOREPLIFETIME(UCustomCharacterMovementComponent, WalkingDirection);
 }
 
 void UCustomCharacterMovementComponent::CalcVelocity(const float DeltaTime, const float Friction, const bool bFluid, const float BrakingDeceleration)

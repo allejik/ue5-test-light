@@ -38,12 +38,12 @@ protected:
 	UFUNCTION()
 	void StopCrouch();
 
-	UFUNCTION(Server, Reliable)
+	UFUNCTION(Server, Unreliable)
 	void Server_SetSprintSpeed(const float NewMaxWalkSpeed);
 	void Server_SetSprintSpeed_Implementation(const float NewMaxWalkSpeed);
 
 	// Sets the direction for custom movement component to follow the mouse while jumping
-	UFUNCTION(Server, Reliable)
+	UFUNCTION(Server, Unreliable)
 	void Server_SetWalkingDirection(const float DirectionX, const float DirectionY);
 	void Server_SetWalkingDirection_Implementation(const float DirectionX, const float DirectionY);
 	

@@ -12,9 +12,6 @@ AFirstPersonCharacter::AFirstPersonCharacter(const FObjectInitializer& ObjectIni
 {
 	PrimaryActorTick.bCanEverTick = true;
 
-	// Set default sprint speed multiplier
-	SprintSpeedMultiplier = 1.3f;
-
 	// Create a first person camera component.
 	CharacterCameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("FirstPersonCamera"));
 	if (!CharacterCameraComponent) {
@@ -116,17 +113,15 @@ void AFirstPersonCharacter::StopCrouch()
 
 void AFirstPersonCharacter::StartSprint()
 {
-	const float NewMaxWalkSpeed = GetCharacterMovement()->MaxWalkSpeed * SprintSpeedMultiplier;
-	CustomCharacterMovementComponent->SetMaxWalkSpeed(NewMaxWalkSpeed);
+	CustomCharacterMovementComponent->StartSprint();
 }
 
 void AFirstPersonCharacter::StopSprint()
 {
-	const float NewMaxWalkSpeed = GetCharacterMovement()->MaxWalkSpeed / SprintSpeedMultiplier;
-	CustomCharacterMovementComponent->SetMaxWalkSpeed(NewMaxWalkSpeed);
+	CustomCharacterMovementComponent->StopSprint();
 }
 
 void AFirstPersonCharacter::DoDodge()
 {
-	CustomCharacterMovementComponent->Dodge();
+	CustomCharacterMovementComponent->DoDodge();
 }

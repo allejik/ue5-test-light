@@ -81,16 +81,17 @@ public:
 
 	float CharacterNewMaxWalkSpeed;
 
-	UPROPERTY(EditAnywhere, Category = "Dodge")
+	UPROPERTY(EditAnywhere, Category = "Character Movement: Walking")
+	float SprintSpeedMultiplier;
+
+	UPROPERTY(EditAnywhere, Category = "Character Movement: Walking")
 	float DodgeStrength;
 
 	FVector MoveDirection;
 
 	uint8 bWantsToDodge : 1;
 	
-	// Sets Max Walk Speed (Called from the owning client)
-	void SetMaxWalkSpeed(float NewMaxWalkSpeed);
-
-	// Triggers the dodge ability (Called from the owning client)
-	void Dodge();
+	void StartSprint();
+	void StopSprint();
+	void DoDodge();
 };

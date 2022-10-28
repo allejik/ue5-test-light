@@ -50,8 +50,4 @@ private:
 
 	UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
 	USkeletalMeshComponent* CharacterMeshComponent;
-
-	// Max walking speed multiplied by this value
-	UPROPERTY(EditAnywhere, Category = "Character Movement: Walking")
-	float SprintSpeedMultiplier;
 };

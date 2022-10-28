@@ -14,6 +14,7 @@ UCustomCharacterMovementComponent::UCustomCharacterMovementComponent(const FObje
 	AirControlBoostMultiplier = 0;
 	AirControlBoostVelocityThreshold = 0;
 	DodgeStrength = 10000.f;
+	SprintSpeedMultiplier = 1.3f;
 }
 
 void UCustomCharacterMovementComponent::OnMovementUpdated(const float DeltaTime, const FVector& OldLocation, const FVector& OldVelocity)
@@ -142,41 +143,6 @@ FSavedMovePtr UCustomCharacterMovementComponent::FNetworkPredictionData_Client_F
 	return MakeShared<FSavedMove_FirstPersonCharacter>();
 }
 
-bool UCustomCharacterMovementComponent::ServerSetMaxWalkSpeed_Validate(const float NewMaxWalkSpeed)
-{
-	return NewMaxWalkSpeed >= 0.f && NewMaxWalkSpeed <= 2000.f;
-}
-
-void UCustomCharacterMovementComponent::ServerSetMaxWalkSpeed_Implementation(const float NewMaxWalkSpeed)
-{
-	CharacterNewMaxWalkSpeed = NewMaxWalkSpeed;
-}
-
-void UCustomCharacterMovementComponent::SetMaxWalkSpeed(const float NewMaxWalkSpeed)
-{
-	if (PawnOwner->IsLocallyControlled()) {
-		CharacterNewMaxWalkSpeed = NewMaxWalkSpeed;
-		ServerSetMaxWalkSpeed(NewMaxWalkSpeed);
-	}
-
-	bRequestMaxWalkSpeedChange = true;
-}
-
-void UCustomCharacterMovementComponent::ServerMoveDirection_Implementation(const FVector& MoveDir)
-{
-	MoveDirection = MoveDir;
-}
-
-void UCustomCharacterMovementComponent::Dodge()
-{
-	if (PawnOwner->IsLocallyControlled()) {
-		MoveDirection = PawnOwner->GetLastMovementInputVector();
-		ServerMoveDirection(MoveDirection);
-	}
-
-	bWantsToDodge = true;
-}
-
 bool UCustomCharacterMovementComponent::HandlePendingLaunch()
 {
 	if (!PendingLaunchVelocity.IsZero() && HasValidData()) {
@@ -189,4 +155,51 @@ bool UCustomCharacterMovementComponent::HandlePendingLaunch()
 	}
 
 	return false;
+}
+
+bool UCustomCharacterMovementComponent::ServerSetMaxWalkSpeed_Validate(const float NewMaxWalkSpeed)
+{
+	return NewMaxWalkSpeed >= 0.f && NewMaxWalkSpeed <= 2000.f;
+}
+
+void UCustomCharacterMovementComponent::ServerSetMaxWalkSpeed_Implementation(const float NewMaxWalkSpeed)
+{
+	CharacterNewMaxWalkSpeed = NewMaxWalkSpeed;
+}
+
+void UCustomCharacterMovementComponent::ServerMoveDirection_Implementation(const FVector& MoveDir)
+{
+	MoveDirection = MoveDir;
+}
+
+void UCustomCharacterMovementComponent::StartSprint()
+{
+	if (PawnOwner->IsLocallyControlled()) {
+		const float NewMaxWalkSpeed = MaxWalkSpeed * SprintSpeedMultiplier;
+		CharacterNewMaxWalkSpeed = NewMaxWalkSpeed;
+		ServerSetMaxWalkSpeed(NewMaxWalkSpeed);
+	}
+
+	bRequestMaxWalkSpeedChange = true;
+}
+
+void UCustomCharacterMovementComponent::StopSprint()
+{
+	if (PawnOwner->IsLocallyControlled()) {
+		const float NewMaxWalkSpeed = MaxWalkSpeed / SprintSpeedMultiplier;
+		CharacterNewMaxWalkSpeed = NewMaxWalkSpeed;
+		ServerSetMaxWalkSpeed(NewMaxWalkSpeed);
+	}
+
+	bRequestMaxWalkSpeedChange = true;
+}
+
+void UCustomCharacterMovementComponent::DoDodge()
+{
+	if (PawnOwner->IsLocallyControlled()) {
+		MoveDirection = PawnOwner->GetLastMovementInputVector();
+		ServerMoveDirection(MoveDirection);
+	}
+
+	bWantsToDodge = true;
 }

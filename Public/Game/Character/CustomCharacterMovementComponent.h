@@ -78,8 +78,9 @@ protected:
 
 public:
 	uint8 bRequestMaxWalkSpeedChange : 1;
-
+	uint8 bWantsToDodge : 1;
 	float CharacterNewMaxWalkSpeed;
+	FVector MoveDirection;
 
 	UPROPERTY(EditAnywhere, Category = "Character Movement: Walking")
 	float SprintSpeedMultiplier;
@@ -87,11 +88,10 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Character Movement: Walking")
 	float DodgeStrength;
 
-	FVector MoveDirection;
-
-	uint8 bWantsToDodge : 1;
-	
+	// Increases/Decreases character's speed based MaxWalkSpeed*SprintSpeedMultiplier
 	void StartSprint();
 	void StopSprint();
+
+	// Pushes character in the direction of movement while on the ground
 	void DoDodge();
 };

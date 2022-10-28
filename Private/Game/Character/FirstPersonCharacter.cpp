@@ -7,7 +7,6 @@
 #include "Blueprint/UserWidget.h"
 #include "Kismet/GameplayStatics.h"
 
-// Sets default values
 AFirstPersonCharacter::AFirstPersonCharacter(const FObjectInitializer& ObjectInitializer):
 	Super(ObjectInitializer.SetDefaultSubobjectClass<UCustomCharacterMovementComponent>(CharacterMovementComponentName))
 {
@@ -72,6 +71,8 @@ void AFirstPersonCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInp
 
 	PlayerInputComponent->BindAction("Crouch", IE_Pressed, this, &AFirstPersonCharacter::StartCrouch);
 	PlayerInputComponent->BindAction("Crouch", IE_Released, this, &AFirstPersonCharacter::StopCrouch);
+
+	PlayerInputComponent->BindAction("Dodge", IE_Pressed, this, &AFirstPersonCharacter::DoDodge);
 }
 
 void AFirstPersonCharacter::PostInitializeComponents()
@@ -83,26 +84,12 @@ void AFirstPersonCharacter::PostInitializeComponents()
 
 void AFirstPersonCharacter::MoveForward(const float Value)
 {
-	Server_SetWalkingDirection_Implementation(Value, CustomCharacterMovementComponent->WalkingDirection.Y);
-
-	// If you're a server, you don't need to set SetWalkingDirection via server
-	if (!HasAuthority()) {
-		Server_SetWalkingDirection(Value, CustomCharacterMovementComponent->WalkingDirection.Y);
-	}
-
 	const FVector Direction = FRotationMatrix(Controller->GetControlRotation()).GetScaledAxis(EAxis::X);
 	AddMovementInput(Direction, Value);
 }
 
 void AFirstPersonCharacter::MoveRight(const float Value)
 {
-	Server_SetWalkingDirection_Implementation(CustomCharacterMovementComponent->WalkingDirection.X, Value);
-
-	// If you're a server, you don't need to set SetWalkingDirection via server
-	if (!HasAuthority()) {
-		Server_SetWalkingDirection(CustomCharacterMovementComponent->WalkingDirection.X, Value);
-	}
-
 	const FVector Direction = FRotationMatrix(Controller->GetControlRotation()).GetScaledAxis(EAxis::Y);
 	AddMovementInput(Direction, Value);
 }
@@ -130,29 +117,16 @@ void AFirstPersonCharacter::StopCrouch()
 void AFirstPersonCharacter::StartSprint()
 {
 	const float NewMaxWalkSpeed = GetCharacterMovement()->MaxWalkSpeed * SprintSpeedMultiplier;
-	Server_SetSprintSpeed_Implementation(NewMaxWalkSpeed);
-
-	if (!HasAuthority()) {
-		Server_SetSprintSpeed(NewMaxWalkSpeed);
-	}
+	CustomCharacterMovementComponent->SetMaxWalkSpeed(NewMaxWalkSpeed);
 }
 
 void AFirstPersonCharacter::StopSprint()
 {
 	const float NewMaxWalkSpeed = GetCharacterMovement()->MaxWalkSpeed / SprintSpeedMultiplier;
-	Server_SetSprintSpeed_Implementation(NewMaxWalkSpeed);
-
-	if (!HasAuthority()) {
-		Server_SetSprintSpeed(NewMaxWalkSpeed);
-	}
+	CustomCharacterMovementComponent->SetMaxWalkSpeed(NewMaxWalkSpeed);
 }
 
-void AFirstPersonCharacter::Server_SetSprintSpeed_Implementation(const float NewMaxWalkSpeed)
+void AFirstPersonCharacter::DoDodge()
 {
-	CustomCharacterMovementComponent->MaxWalkSpeed = NewMaxWalkSpeed;
-}
-
-void AFirstPersonCharacter::Server_SetWalkingDirection_Implementation(const float DirectionX, const float DirectionY)
-{
-	CustomCharacterMovementComponent->WalkingDirection = FVector2D(DirectionX, DirectionY);
+	CustomCharacterMovementComponent->Dodge();
 }

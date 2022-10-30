@@ -217,14 +217,14 @@ void UCustomCharacterMovementComponent::CalcVelocity(const float DeltaTime, cons
 	// Air control for mouse movement to change direction mid-air after jumping
 	if (!IsMovingOnGround()) {
 		FVector VelocityDirection;
-		const bool IsMovingForward = UKismetMathLibrary::InRange_FloatFloat(LastYawOnGround, -22, 0) || UKismetMathLibrary::InRange_FloatFloat(LastYawOnGround, 0, 22);
-		const bool IsMovingForwardRight = UKismetMathLibrary::InRange_FloatFloat(LastYawOnGround, 23, 67);
-		const bool IsMovingRight = UKismetMathLibrary::InRange_FloatFloat(LastYawOnGround, 68, 112);
-		const bool IsMovingBackwardRight = UKismetMathLibrary::InRange_FloatFloat(LastYawOnGround, 113, 157);
-		const bool IsMovingBackward = UKismetMathLibrary::InRange_FloatFloat(LastYawOnGround, -180, -158) || UKismetMathLibrary::InRange_FloatFloat(LastYawOnGround, 158, 180);
-		const bool IsMovingBackwardLeft = UKismetMathLibrary::InRange_FloatFloat(LastYawOnGround, -157, -113);
-		const bool IsMovingLeft = UKismetMathLibrary::InRange_FloatFloat(LastYawOnGround, -112, -68);
-		const bool IsMovingForwardLeft = UKismetMathLibrary::InRange_FloatFloat(LastYawOnGround, -67, -23);
+		const bool IsMovingForward = UKismetMathLibrary::InRange_IntInt(LastYawOnGround, -22, 0) || UKismetMathLibrary::InRange_IntInt(LastYawOnGround, 0, 22);
+		const bool IsMovingForwardRight = UKismetMathLibrary::InRange_IntInt(LastYawOnGround, 23, 67);
+		const bool IsMovingRight = UKismetMathLibrary::InRange_IntInt(LastYawOnGround, 68, 112);
+		const bool IsMovingBackwardRight = UKismetMathLibrary::InRange_IntInt(LastYawOnGround, 113, 157);
+		const bool IsMovingBackward = UKismetMathLibrary::InRange_IntInt(LastYawOnGround, -180, -158) || UKismetMathLibrary::InRange_IntInt(LastYawOnGround, 158, 180);
+		const bool IsMovingBackwardLeft = UKismetMathLibrary::InRange_IntInt(LastYawOnGround, -157, -113);
+		const bool IsMovingLeft = UKismetMathLibrary::InRange_IntInt(LastYawOnGround, -112, -68);
+		const bool IsMovingForwardLeft = UKismetMathLibrary::InRange_IntInt(LastYawOnGround, -67, -23);
 
 		if (IsMovingForward) {
 			VelocityDirection = UpdatedComponent->GetForwardVector();

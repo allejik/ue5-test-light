@@ -15,6 +15,7 @@ UCustomCharacterMovementComponent::UCustomCharacterMovementComponent(const FObje
 	AirControlBoostVelocityThreshold = 0;
 	DodgeStrength = 10000.f;
 	SprintSpeedMultiplier = 1.3f;
+	LastYawOnGround = 0;
 }
 
 void UCustomCharacterMovementComponent::OnMovementUpdated(const float DeltaTime, const FVector& OldLocation, const FVector& OldVelocity)
@@ -202,4 +203,51 @@ void UCustomCharacterMovementComponent::DoDodge()
 	}
 
 	bWantsToDodge = true;
+}
+
+void UCustomCharacterMovementComponent::CalcVelocity(const float DeltaTime, const float Friction, const bool bFluid, const float BrakingDeceleration)
+{
+	Super::CalcVelocity(DeltaTime, Friction, bFluid, BrakingDeceleration);
+
+	if (IsMovingOnGround() && Velocity.Size() > 0) {
+		const FVector NewDirection = UKismetMathLibrary::InverseTransformDirection(GetActorTransform(), Velocity);
+		LastYawOnGround = FMath::CeilToInt(FRotationMatrix::MakeFromX(NewDirection).Rotator().Yaw);
+	}
+
+	// Air control for mouse movement to change direction mid-air after jumping
+	if (!IsMovingOnGround()) {
+		FVector VelocityDirection;
+		const bool IsMovingForward = UKismetMathLibrary::InRange_FloatFloat(LastYawOnGround, -22, 0) || UKismetMathLibrary::InRange_FloatFloat(LastYawOnGround, 0, 22);
+		const bool IsMovingForwardRight = UKismetMathLibrary::InRange_FloatFloat(LastYawOnGround, 23, 67);
+		const bool IsMovingRight = UKismetMathLibrary::InRange_FloatFloat(LastYawOnGround, 68, 112);
+		const bool IsMovingBackwardRight = UKismetMathLibrary::InRange_FloatFloat(LastYawOnGround, 113, 157);
+		const bool IsMovingBackward = UKismetMathLibrary::InRange_FloatFloat(LastYawOnGround, -180, -158) || UKismetMathLibrary::InRange_FloatFloat(LastYawOnGround, 158, 180);
+		const bool IsMovingBackwardLeft = UKismetMathLibrary::InRange_FloatFloat(LastYawOnGround, -157, -113);
+		const bool IsMovingLeft = UKismetMathLibrary::InRange_FloatFloat(LastYawOnGround, -112, -68);
+		const bool IsMovingForwardLeft = UKismetMathLibrary::InRange_FloatFloat(LastYawOnGround, -67, -23);
+
+		if (IsMovingForward) {
+			VelocityDirection = UpdatedComponent->GetForwardVector();
+		} else if (IsMovingBackward) {
+			VelocityDirection = -UpdatedComponent->GetForwardVector();
+		} else if (IsMovingRight) {
+			VelocityDirection = UpdatedComponent->GetRightVector();
+		} else if (IsMovingLeft) {
+			VelocityDirection = -UpdatedComponent->GetRightVector();
+		} else {
+			if (IsMovingForwardRight) {
+				VelocityDirection = UpdatedComponent->GetForwardVector() + UpdatedComponent->GetRightVector();
+			} else if (IsMovingForwardLeft) {
+				VelocityDirection = UpdatedComponent->GetForwardVector() - UpdatedComponent->GetRightVector();
+			} else if (IsMovingBackwardRight) {
+				VelocityDirection = UpdatedComponent->GetRightVector() - UpdatedComponent->GetForwardVector();
+			} else if (IsMovingBackwardLeft) {
+				VelocityDirection = -(UpdatedComponent->GetForwardVector() + UpdatedComponent->GetRightVector());
+			}
+			
+			VelocityDirection = UKismetMathLibrary::Normal(VelocityDirection / 2);
+		}
+
+		Velocity -= Velocity - VelocityDirection * Velocity.Size();
+	}
 }

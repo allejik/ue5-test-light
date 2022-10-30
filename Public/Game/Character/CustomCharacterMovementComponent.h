@@ -63,6 +63,9 @@ public:
 	// Handle a pending launch during an update. Returns true if the launch was triggered
 	virtual bool HandlePendingLaunch() override;
 
+	// Updates Velocity and Acceleration based on the current state
+	virtual void CalcVelocity(float DeltaTime, float Friction, bool bFluid, float BrakingDeceleration) override;
+
 protected:
 	// Unpack compressed flags from a saved move and set state accordingly
 	virtual void UpdateFromCompressedFlags(uint8 Flags) override;
@@ -76,6 +79,9 @@ protected:
 	UFUNCTION(Unreliable, Server)
 	void ServerMoveDirection(const FVector& MoveDir);
 
+private:
+	int32 LastYawOnGround;
+	
 public:
 	uint8 bRequestMaxWalkSpeedChange : 1;
 	uint8 bWantsToDodge : 1;
